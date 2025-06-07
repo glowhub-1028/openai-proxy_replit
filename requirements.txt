@@ -1,0 +1,8 @@
+flask
+openai
+flask-cors
+requests
+pytz
+pandas
+plotly
+jinja2

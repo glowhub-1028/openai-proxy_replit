@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI API Proxy Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+    
+<body>
+    <div class="container">
+        <h1>OpenAI API Proxy Test</h1>
+
+        <div class="form-group">
+            <label for="token">Access Token:</label>
+            <input type="text" id="token" placeholder="Enter your access token">
+        </div>
+
+        <div class="form-group">
+            <label for="prompt">Prompt:</label>
+            <textarea id="prompt" rows="4" placeholder="Enter your prompt here"></textarea>
+        </div>
+
+        <button onclick="generateResponse()">Generate Response</button>
+
+        <div id="response"></div>
+    </div>
+    <script>
+        async function generateResponse() {
+            const token = document.getElementById('token').value;
+            const prompt = document.getElementById('prompt').value;
+            const responseDiv = document.getElementById('response');
+
+            if (!token || !prompt) {
+                responseDiv.innerHTML = '<div class="error">Please enter both token and prompt</div>';
+                return;
+            }
+
+            try {
+                responseDiv.innerHTML = 'Loading...';
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+    
+                const data = await response.json();
+                console.log(data);
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <h3>Response:</h3>
+                        <p>${data.reply}</p>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                    `;
+                } else {
+                    responseDiv.innerHTML = `
+                        <div class="error">
+                            <h3>Error:</h3>
+                            <p>${data.error}</p>
+                            <p><strong>Status:</strong> ${data.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <div class="error">
+                        <h3>Error:</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        } 
+    </script>
+</body>
+</html> 
